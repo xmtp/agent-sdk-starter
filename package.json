@@ -1,0 +1,28 @@
+{
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/xmtp/agent-sdk-starter/issues"
+  },
+  "dependencies": {
+    "@types/node": "^24.9.1",
+    "@xmtp/agent-sdk": "^1.1.7",
+    "dotenv-defaults": "^5.0.2",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  },
+  "description": "",
+  "homepage": "https://github.com/xmtp/agent-sdk-starter#readme",
+  "keywords": [],
+  "license": "ISC",
+  "main": "index.js",
+  "name": "agent-sdk-starter",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xmtp/agent-sdk-starter.git"
+  },
+  "scripts": {
+    "start": "tsx src/index.ts"
+  },
+  "type": "module",
+  "version": "1.0.0"
+}
