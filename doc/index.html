@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>XMTP Key Generator</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .container {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        padding: 40px;
+        max-width: 600px;
+        width: 100%;
+      }
+
+      h1 {
+        color: #333;
+        margin-bottom: 10px;
+        font-size: 28px;
+      }
+
+      .subtitle {
+        color: #666;
+        margin-bottom: 30px;
+        font-size: 14px;
+      }
+
+      .key-section {
+        margin-bottom: 30px;
+      }
+
+      .key-section h2 {
+        color: #555;
+        font-size: 16px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .key-section .description {
+        color: #888;
+        font-size: 13px;
+        margin-bottom: 12px;
+      }
+
+      .key-display {
+        background: #f5f5f5;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 12px;
+        font-family: 'Courier New', monospace;
+        font-size: 13px;
+        word-break: break-all;
+        color: #333;
+        min-height: 60px;
+        display: flex;
+        align-items: center;
+        transition: all 0.3s ease;
+      }
+
+      .key-display:hover {
+        background: #e8e8e8;
+        border-color: #667eea;
+      }
+
+      .key-display.empty {
+        color: #999;
+        font-style: italic;
+      }
+
+      code {
+        background: #f0f0f0;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-family: 'Courier New', monospace;
+        font-size: 12px;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      button {
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 24px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        flex: 1;
+      }
+
+      button:hover {
+        background: #5568d3;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      }
+
+      button:active {
+        transform: translateY(0);
+      }
+
+      button.secondary {
+        background: #6c757d;
+      }
+
+      button.secondary:hover {
+        background: #5a6268;
+        box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4);
+      }
+
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .generate-all-btn {
+        width: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        font-size: 16px;
+        padding: 16px;
+        margin-top: 20px;
+      }
+
+      .generate-all-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+      }
+
+      .alert {
+        background: #d1ecf1;
+        border: 1px solid #bee5eb;
+        border-radius: 8px;
+        padding: 12px;
+        margin-top: 20px;
+        color: #0c5460;
+        font-size: 13px;
+      }
+
+      .alert strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .footer {
+        margin-top: 30px;
+        text-align: center;
+        color: #999;
+        font-size: 12px;
+      }
+
+      .footer a {
+        color: #667eea;
+        text-decoration: none;
+      }
+
+      .footer a:hover {
+        text-decoration: underline;
+      }
+
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-5px);
+        }
+        75% {
+          transform: translateX(5px);
+        }
+      }
+
+      .copied {
+        animation: shake 0.3s ease;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔐 XMTP Key Generator</h1>
+      <p class="subtitle">Your keys are ready! Click to copy them.</p>
+
+      <div class="key-section">
+        <h2>
+          <span>🔑</span>
+          XMTP_WALLET_KEY
+        </h2>
+        <div
+          id="walletKey"
+          class="key-display"
+          onclick="copyToClipboard('walletKey')"
+          style="cursor: pointer"
+          title="Click to copy"
+        >
+          Generating...
+        </div>
+      </div>
+
+      <div class="key-section">
+        <h2>
+          <span>🛡️</span>
+          XMTP_DB_ENCRYPTION_KEY
+        </h2>
+        <div
+          id="dbKey"
+          class="key-display"
+          onclick="copyToClipboard('dbKey')"
+          style="cursor: pointer"
+          title="Click to copy"
+        >
+          Generating...
+        </div>
+      </div>
+
+      <button
+        class="generate-all-btn"
+        onclick="generateAll()"
+      >
+        🔄 Generate New Keys
+      </button>
+
+      <div class="alert">
+        <strong>💡 How to use:</strong>
+        Click any key to copy it. Add them to your <code>.env</code> file. Keys are generated securely in your browser.
+        <br /><br />
+        <strong>Use the keys only for development and testing!</strong>
+      </div>
+
+      <div class="footer">
+        Built for
+        <a
+          href="https://github.com/xmtp/agent-sdk-starter"
+          target="_blank"
+          >XMTP Agent SDK Starter</a
+        >
+      </div>
+    </div>
+
+    <script>
+      function generateRandomHex(length) {
+        const array = new Uint8Array(length / 2);
+        crypto.getRandomValues(array);
+        return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+      }
+
+      function generateWalletKey() {
+        const key = `0x${generateRandomHex(64)}`;
+        const element = document.getElementById('walletKey');
+        element.textContent = key;
+        element.classList.remove('empty');
+      }
+
+      function generateDbKey() {
+        const key = `0x${generateRandomHex(64)}`;
+        const element = document.getElementById('dbKey');
+        element.textContent = key;
+        element.classList.remove('empty');
+      }
+
+      function generateAll() {
+        generateWalletKey();
+        generateDbKey();
+      }
+
+      async function copyToClipboard(elementId) {
+        const element = document.getElementById(elementId);
+        const text = element.textContent;
+
+        if (text === 'Generating...' || element.classList.contains('empty')) {
+          return;
+        }
+
+        try {
+          await navigator.clipboard.writeText(text);
+          element.classList.add('copied');
+
+          const originalBg = element.style.background;
+          element.style.background = '#c3f0c8';
+
+          setTimeout(() => {
+            element.classList.remove('copied');
+            element.style.background = originalBg;
+          }, 500);
+        } catch (err) {
+          alert('Failed to copy to clipboard. Please copy manually.');
+        }
+      }
+
+      // Auto-generate keys on page load
+      window.addEventListener('load', () => {
+        generateAll();
+      });
+    </script>
+  </body>
+</html>
