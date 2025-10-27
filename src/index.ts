@@ -1,31 +1,11 @@
 // Import .env
 import 'dotenv-defaults/config';
 // Import Agent SDK
-import {Agent, AgentError, XmtpEnv} from '@xmtp/agent-sdk';
+import {Agent, AgentError} from '@xmtp/agent-sdk';
 import {getTestUrl} from '@xmtp/agent-sdk/debug';
 import {CommandRouter} from '@xmtp/agent-sdk/middleware';
-import {createSigner, createUser} from '@xmtp/agent-sdk/user';
-import path from 'node:path';
 
-const dbDirectory = process.env.XMTP_DB_DIRECTORY ?? path.join('.', '.backup');
-
-type CreateOptions = Exclude<Parameters<(typeof Agent)['createFromEnv']>[0], undefined>;
-
-const options: CreateOptions = {
-  env: (process.env.XMTP_ENV as XmtpEnv) ?? 'dev',
-  dbPath: (inboxId: string) => {
-    const dbPath = path.join(dbDirectory, `xmtp-${inboxId}.db3`);
-    console.info(`Saving local database to "${dbPath}"`);
-    return dbPath;
-  },
-  dbEncryptionKey: process.env.XMTP_DB_ENCRYPTION_KEY
-    ? Buffer.from(process.env.XMTP_DB_ENCRYPTION_KEY, 'hex')
-    : undefined,
-};
-
-const agent = process.env.XMTP_WALLET_KEY
-  ? await Agent.createFromEnv(options)
-  : await Agent.create(createSigner(createUser()), options);
+const agent = await Agent.createFromEnv();
 
 const router = new CommandRouter();
 
@@ -59,24 +39,22 @@ agent.on('group', async ctx => {
   await ctx.conversation.send('Hello group!');
 });
 
-const errorHandler = (error: unknown) => {
+agent.on('unhandledError', (error: unknown) => {
   if (error instanceof AgentError) {
     console.log(`Caught error ID "${error.code}"`, error);
     console.log('Original error', error.cause);
   } else {
     console.log(`Caught error`, error);
   }
-};
-
-agent.on('unhandledError', errorHandler);
-
-agent.on('start', ctx => {
-  console.log(`We are online: ${getTestUrl(ctx.client)}`);
-  console.info(`My address: ${ctx.getClientAddress()}`);
 });
 
 agent.on('stop', ctx => {
   console.log('Agent stopped', ctx);
+});
+
+agent.on('start', ctx => {
+  console.log(`We are online: ${getTestUrl(ctx.client)}`);
+  console.info(`My address: ${ctx.getClientAddress()}`);
 });
 
 await agent.start();
