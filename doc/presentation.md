@@ -4,28 +4,79 @@ theme: default
 paginate: true
 class: invert
 style: |
+  @import url('https://fonts.cdnfonts.com/css/sf-pro-display');
+  
   section {
-    background-color: #1e1e1e;
-    color: #d4d4d4;
+    background-color: #000000;
+    color: #ffffff;
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 28px;
+    padding: 60px;
+  }
+  h1 {
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 56px;
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+  }
+  h2 {
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 42px;
+    margin-bottom: 30px;
+    letter-spacing: -0.01em;
   }
   code {
-    background-color: #2d2d2d;
-    color: #ce9178;
+    background-color: #1a1a1a;
+    color: #00ff88;
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+    padding: 2px 8px;
+    border-radius: 4px;
   }
   pre {
-    background-color: #2d2d2d;
+    background-color: #1a1a1a;
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid #333333;
   }
   pre code {
-    color: #d4d4d4;
+    color: #e0e0e0;
+    background: transparent;
+    padding: 0;
   }
   a {
-    color: #4fc3f7;
+    color: #00ff88;
+    text-decoration: none;
+    border-bottom: 1px solid #00ff88;
   }
   strong {
-    color: rgb(255, 123, 92);
+    color: #00ff88;
+    font-weight: 600;
   }
-  h1, h2 {
-    color: rgb(252, 79, 55);
+  ul, ol {
+    line-height: 1.8;
+  }
+  li {
+    margin-bottom: 12px;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  th, td {
+    padding: 16px;
+    text-align: left;
+    border-bottom: 1px solid #333333;
+  }
+  th {
+    color: #00ff88;
+    font-weight: 600;
+  }
+  blockquote {
+    border-left: 4px solid #00ff88;
+    padding-left: 20px;
+    color: #b0b0b0;
   }
 ---
 
