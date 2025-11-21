@@ -84,7 +84,7 @@ style: |
 
 **Build event-driven messaging agents on XMTP**
 
-`xmtp.org/miniapps`
+[@xmtp/agent-sdk](https://npm.im/@xmtp/agent-sdk)
 
 ---
 
@@ -477,7 +477,8 @@ agent.use(loggerMW, filterSelfMW, rateLimitMW);
 
 ## Resources
 
-📚 **Documentation**: [docs.xmtp.org/agents](https://docs.xmtp.org/agents)
 📦 **NPM Package**: [npm.im/@xmtp/agent-sdk](https://npm.im/@xmtp/agent-sdk)
-💻 **GitHub**: [github.com/xmtp/xmtp-js](https://github.com/xmtp/xmtp-js)
+💻 **GitHub Sources**: [github.com/xmtp/xmtp-js](https://github.com/xmtp/xmtp-js)
+📚 **Documentation**: [docs.xmtp.org/agents](https://docs.xmtp.org/agents/get-started/build-an-agent)
 👩‍💻 **Starter Kit**: [github.com/xmtp/agent-sdk-starter](https://github.com/xmtp/agent-sdk-starter)
+👩‍💻 **Examples**: [github.com/xmtplabs/xmtp-agent-examples](https://github.com/xmtplabs/xmtp-agent-examples)
