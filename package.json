@@ -24,6 +24,9 @@
     "start": "tsx src/index.ts",
     "export:pdf": "marp doc/presentation.md --pdf --allow-local-files -o doc/presentation.pdf"
   },
+  "overrides": {
+    "@xmtp/proto": "3.87.0"
+  },
   "type": "module",
   "version": "1.0.0"
 }
