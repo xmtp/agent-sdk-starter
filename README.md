@@ -31,4 +31,4 @@ Render supports [Persistent Disks](https://render.com/docs/disks) and one-click 
 
 ### Get Support
 
-Chat with `xmtp-docs.eth` on [XMTP.chat](http://xmtp.chat/production/dm/0x212906fdbdb70771461e6cb3376a740132e56b14) or the [Base app](https://docs.base.org/) if you need help while developing with XMTP.
+Chat with `xmtp-docs.eth` on [XMTP.chat](http://xmtp.chat/production/dm/xmtp-docs.eth) or the [Base app](https://docs.base.org/) if you need help while developing with XMTP.

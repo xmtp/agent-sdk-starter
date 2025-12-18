@@ -3,7 +3,10 @@ import 'dotenv-defaults/config';
 // Import Agent SDK
 import {Agent, AgentError} from '@xmtp/agent-sdk';
 import {getTestUrl} from '@xmtp/agent-sdk/debug';
+import {AttachmentUploadCallback, downloadRemoteAttachment} from '@xmtp/agent-sdk/util';
 import {CommandRouter} from '@xmtp/agent-sdk/middleware';
+import {PinataSDK} from 'pinata';
+import {createImageFile} from './createImageFile';
 
 const agent = await Agent.createFromEnv();
 
@@ -13,10 +16,35 @@ router.command('/version', async ctx => {
   await ctx.conversation.send(`v${process.env.npm_package_version}`);
 });
 
+router.command('/send-image', async ctx => {
+  const file = createImageFile();
+
+  const uploadCallback: AttachmentUploadCallback = async attachment => {
+    const pinata = new PinataSDK({
+      pinataJwt: process.env.PINATA_JWT,
+      pinataGateway: process.env.PINATA_GATEWAY,
+    });
+
+    const mimeType = 'application/octet-stream';
+    const encryptedBlob = new Blob([Buffer.from(attachment.content.payload)], {
+      type: mimeType,
+    });
+    const encryptedFile = new File([encryptedBlob], attachment.filename, {
+      type: mimeType,
+    });
+    const upload = await pinata.upload.public.file(encryptedFile);
+
+    return pinata.gateways.public.convert(`${upload.cid}`);
+  };
+
+  await ctx.sendRemoteAttachment(file, uploadCallback);
+});
+
 agent.use(router.middleware());
 
-agent.on('attachment', ctx => {
-  console.log('Received attachment:', ctx.message.content);
+agent.on('attachment', async ctx => {
+  const receivedAttachment = await downloadRemoteAttachment(ctx.message.content, agent);
+  console.log(`Received attachment: ${receivedAttachment.filename}`);
 });
 
 agent.on('reaction', ctx => {

@@ -4,9 +4,11 @@
     "url": "https://github.com/xmtp/agent-sdk-starter/issues"
   },
   "dependencies": {
-    "@types/node": "^24.10.1",
-    "@xmtp/agent-sdk": "^1.1.16",
+    "@types/node": "^24.10.4",
+    "@xmtp/agent-sdk": "^1.2.3",
+    "canvas": "^3.2.0",
     "dotenv-defaults": "^5.0.2",
+    "pinata": "^2.5.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
@@ -21,8 +23,8 @@
     "url": "git+https://github.com/xmtp/agent-sdk-starter.git"
   },
   "scripts": {
-    "start": "tsx src/index.ts",
-    "export:pdf": "marp doc/presentation.md --pdf --allow-local-files -o doc/presentation.pdf"
+    "export:pdf": "marp doc/presentation.md --pdf --allow-local-files -o doc/presentation.pdf",
+    "start": "tsx src/index.ts"
   },
   "type": "module",
   "version": "1.0.0"
