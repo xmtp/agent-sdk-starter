@@ -9,7 +9,9 @@ import {PinataSDK} from 'pinata';
 import {createImageFile} from './createImageFile';
 import {isFromOwner} from './middleware/isFromOwner';
 
-const agent = await Agent.createFromEnv();
+const agent = await Agent.createFromEnv({
+  appVersion: '@xmtp/agent-sdk-starter',
+});
 
 const router = new CommandRouter();
 
