@@ -7,6 +7,7 @@ import {AttachmentUploadCallback, downloadRemoteAttachment} from '@xmtp/agent-sd
 import {CommandRouter} from '@xmtp/agent-sdk/middleware';
 import {PinataSDK} from 'pinata';
 import {createImageFile} from './createImageFile';
+import {isFromOwner} from './middleware/isFromOwner';
 
 const agent = await Agent.createFromEnv();
 
@@ -39,8 +40,6 @@ router.command('/send-image', async ctx => {
 
   await ctx.sendRemoteAttachment(file, uploadCallback);
 });
-
-agent.use(router.middleware());
 
 agent.on('attachment', async ctx => {
   const receivedAttachment = await downloadRemoteAttachment(ctx.message.content, agent);
@@ -85,5 +84,9 @@ agent.on('start', ctx => {
   console.info(`My address: ${ctx.getClientAddress()}`);
 });
 
+if (process.env.XMTP_OWNER_ADDRESS) {
+  agent.use(isFromOwner);
+}
+agent.use(router.middleware());
 await agent.start();
 console.log('Agent has started.');
