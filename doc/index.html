@@ -219,6 +219,19 @@
       <p class="subtitle">Click any key to copy it. Use for development only.</p>
 
       <div class="key-section">
+        <h2>XMTP_DB_ENCRYPTION_KEY</h2>
+        <div
+          id="dbKey"
+          class="key-display"
+          onclick="copyToClipboard('dbKey')"
+          style="cursor: pointer"
+          title="Click to copy"
+        >
+          Generating...
+        </div>
+      </div>
+
+      <div class="key-section">
         <h2>XMTP_WALLET_KEY</h2>
         <div
           id="walletKey"
@@ -232,12 +245,12 @@
       </div>
 
       <div class="key-section">
-        <h2>XMTP_DB_ENCRYPTION_KEY</h2>
+        <h2>Copy Both Keys (.env format)</h2>
         <div
-          id="dbKey"
+          id="combinedKeys"
           class="key-display"
-          onclick="copyToClipboard('dbKey')"
-          style="cursor: pointer"
+          onclick="copyToClipboard('combinedKeys')"
+          style="cursor: pointer; white-space: pre-wrap; font-size: 12px; line-height: 1.6"
           title="Click to copy"
         >
           Generating...
@@ -279,6 +292,7 @@
         const element = document.getElementById('walletKey');
         element.textContent = key;
         element.classList.remove('empty');
+        updateCombinedKeys();
       }
 
       function generateDbKey() {
@@ -286,6 +300,19 @@
         const element = document.getElementById('dbKey');
         element.textContent = key;
         element.classList.remove('empty');
+        updateCombinedKeys();
+      }
+
+      function updateCombinedKeys() {
+        const walletKey = document.getElementById('walletKey').textContent;
+        const dbKey = document.getElementById('dbKey').textContent;
+
+        if (walletKey !== 'Generating...' && dbKey !== 'Generating...') {
+          const combined = `XMTP_DB_ENCRYPTION_KEY=${dbKey}\nXMTP_WALLET_KEY=${walletKey}`;
+          const element = document.getElementById('combinedKeys');
+          element.textContent = combined;
+          element.classList.remove('empty');
+        }
       }
 
       function generateAll() {
