@@ -175,6 +175,17 @@
         font-weight: 600;
       }
 
+      .alert a {
+        color: #000;
+        text-decoration: none;
+        border-bottom: 1px solid #000;
+        transition: border 0.2s ease;
+      }
+
+      .alert a:hover {
+        border-bottom: 1px dotted #000;
+      }
+
       .footer {
         margin-top: 32px;
         padding-top: 24px;
@@ -187,12 +198,16 @@
       .footer a {
         color: #000;
         text-decoration: none;
-        border-bottom: 1px solid #e5e5e5;
-        transition: border-color 0.2s ease;
+        border-bottom: 1px dotted #000;
+        transition: border 0.2s ease;
       }
 
       .footer a:hover {
         border-bottom-color: #000;
+      }
+
+      .footer a:active {
+        border-bottom: 1px dotted #000;
       }
 
       @keyframes shake {
@@ -268,6 +283,19 @@
         <strong>How it works</strong>
         Keys are generated securely in your browser using Web Crypto API. Nothing is sent to any server. Add them to
         your <code>.env</code> file for local development and testing only.
+      </div>
+
+      <div class="alert">
+        <strong>Using an Existing Wallet Key</strong>
+        If you want your XMTP identity to match an existing wallet address, you can use a
+        <a
+          href="https://github.com/iancoleman/bip39"
+          target="_blank"
+          >BIP-39 tool</a
+        >
+        to derive the wallet’s private key (
+        <code>XMTP_WALLET_KEY</code>
+        ) from its mnemonic seed phrase.
       </div>
 
       <div class="footer">
