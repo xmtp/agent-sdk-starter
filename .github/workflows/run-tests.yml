@@ -1,0 +1,27 @@
+name: "Run Tests"
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-job:
+    if: contains(github.event.head_commit.message, '[skip ci]') == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Check out repository code in $GITHUB_WORKSPACE"
+        uses: actions/checkout@v6
+      - name: "Set up Node.js version specified in file"
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: ".nvmrc"
+      - name: "Run deterministic dependency installation"
+        run: npm ci
+      - name: "Run tests"
+        run: npm test

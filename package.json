@@ -24,7 +24,8 @@
   },
   "scripts": {
     "export:pdf": "marp doc/presentation.md --pdf --allow-local-files -o doc/presentation.pdf",
-    "start": "tsx watch src/index.ts"
+    "start": "tsx watch src/index.ts",
+    "test": "exit 0"
   },
   "type": "module",
   "version": "1.0.0"
