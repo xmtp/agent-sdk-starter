@@ -1,4 +1,4 @@
-import {AgentMiddleware} from '@xmtp/agent-sdk';
+import {type AgentMiddleware} from '@xmtp/agent-sdk';
 
 export const isFromOwner: AgentMiddleware = async (ctx, next) => {
   const ownerAddress = process.env.XMTP_OWNER_ADDRESS;

@@ -1,13 +1,13 @@
 // Import .env
-import 'dotenv-defaults/config';
+import 'dotenv-defaults/config.js';
 // Import Agent SDK
 import {Agent, AgentError} from '@xmtp/agent-sdk';
 import {getTestUrl} from '@xmtp/agent-sdk/debug';
-import {AttachmentUploadCallback, downloadRemoteAttachment} from '@xmtp/agent-sdk/util';
+import {type AttachmentUploadCallback, downloadRemoteAttachment} from '@xmtp/agent-sdk/util';
 import {CommandRouter} from '@xmtp/agent-sdk/middleware';
 import {PinataSDK} from 'pinata';
-import {createImageFile} from './createImageFile';
-import {isFromOwner} from './middleware/isFromOwner';
+import {createImageFile} from './createImageFile.js';
+import {isFromOwner} from './middleware/isFromOwner.js';
 
 const agent = await Agent.createFromEnv({
   appVersion: '@xmtp/agent-sdk-starter',
@@ -24,8 +24,8 @@ router.command('/send-image', async ctx => {
 
   const uploadCallback: AttachmentUploadCallback = async attachment => {
     const pinata = new PinataSDK({
-      pinataJwt: process.env.PINATA_JWT,
-      pinataGateway: process.env.PINATA_GATEWAY,
+      pinataJwt: `${process.env.PINATA_JWT}`,
+      pinataGateway: `${process.env.PINATA_GATEWAY}`,
     });
 
     const mimeType = 'application/octet-stream';
