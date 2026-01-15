@@ -16,7 +16,8 @@ const agent = await Agent.createFromEnv({
 const router = new CommandRouter();
 
 router.command('/version', async ctx => {
-  await ctx.conversation.send(`v${process.env.npm_package_version}`);
+  const libXmtpVersion = ctx.client.libxmtpVersion;
+  await ctx.sendText(`My libXMTP version is: ${libXmtpVersion}`);
 });
 
 router.command('/send-image', async ctx => {
