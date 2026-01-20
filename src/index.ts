@@ -33,7 +33,7 @@ router.command('/send-image', async ctx => {
     const encryptedBlob = new Blob([Buffer.from(attachment.content.payload)], {
       type: mimeType,
     });
-    const encryptedFile = new File([encryptedBlob], attachment.filename, {
+    const encryptedFile = new File([encryptedBlob], attachment.content.filename || 'untitled', {
       type: mimeType,
     });
     const upload = await pinata.upload.public.file(encryptedFile);
@@ -45,7 +45,7 @@ router.command('/send-image', async ctx => {
 });
 
 agent.on('attachment', async ctx => {
-  const receivedAttachment = await downloadRemoteAttachment(ctx.message.content, agent);
+  const receivedAttachment = await downloadRemoteAttachment(ctx.message.content);
   console.log(`Received attachment: ${receivedAttachment.filename}`);
 });
 
@@ -58,15 +58,15 @@ agent.on('reply', ctx => {
 });
 
 agent.on('text', async ctx => {
-  await ctx.conversation.send(`Echo: ${ctx.message.content}`);
+  await ctx.sendText(`Echo: ${ctx.message.content}`);
 });
 
 agent.on('dm', async ctx => {
-  await ctx.conversation.send('Hello you!');
+  await ctx.sendText('Hello you!');
 });
 
 agent.on('group', async ctx => {
-  await ctx.conversation.send('Hello group!');
+  await ctx.sendText('Hello group!');
 });
 
 agent.on('unhandledError', (error: unknown) => {

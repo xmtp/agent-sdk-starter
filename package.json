@@ -5,7 +5,7 @@
   },
   "dependencies": {
     "@types/node": "^25.0.8",
-    "@xmtp/agent-sdk": "^1.2.4",
+    "@xmtp/agent-sdk": "1.2.5-rc2",
     "canvas": "^3.2.1",
     "dotenv-defaults": "^5.0.2",
     "pinata": "^2.5.3",
