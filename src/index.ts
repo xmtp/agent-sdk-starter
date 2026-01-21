@@ -33,7 +33,7 @@ router.command('/send-image', async ctx => {
     const encryptedBlob = new Blob([Buffer.from(attachment.content.payload)], {
       type: mimeType,
     });
-    const encryptedFile = new File([encryptedBlob], attachment.filename || 'untitled', {
+    const encryptedFile = new File([encryptedBlob], attachment.filename, {
       type: mimeType,
     });
     const upload = await pinata.upload.public.file(encryptedFile);
