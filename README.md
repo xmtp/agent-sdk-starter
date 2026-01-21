@@ -11,6 +11,7 @@ Create a `.env` file in the project root with your [XMTP credentials](https://do
 ```bash
 XMTP_WALLET_KEY=0x...
 XMTP_DB_ENCRYPTION_KEY=0x...
+XMTP_ENV=production
 ```
 
 If you do not have an existing Ethereum wallet, generate test keys at https://xmtp.github.io/agent-sdk-starter/ (keys are generated locally in your browser).
