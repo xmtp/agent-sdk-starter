@@ -33,7 +33,7 @@ router.command('/send-image', async ctx => {
     const encryptedBlob = new Blob([Buffer.from(attachment.content.payload)], {
       type: mimeType,
     });
-    const encryptedFile = new File([encryptedBlob], attachment.content.filename || 'untitled', {
+    const encryptedFile = new File([encryptedBlob], attachment.filename || 'untitled', {
       type: mimeType,
     });
     const upload = await pinata.upload.public.file(encryptedFile);
@@ -45,7 +45,7 @@ router.command('/send-image', async ctx => {
 });
 
 agent.on('attachment', async ctx => {
-  const receivedAttachment = await downloadRemoteAttachment(ctx.message.content);
+  const receivedAttachment = await downloadRemoteAttachment(ctx.message.content, agent);
   console.log(`Received attachment: ${receivedAttachment.filename}`);
 });
 
