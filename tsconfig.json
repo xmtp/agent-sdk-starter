@@ -3,7 +3,7 @@
     "declaration": true,
     "declarationMap": true,
     "exactOptionalPropertyTypes": true,
-    "isolatedModules": true,
+    "isolatedModules": false,
     "jsx": "react-jsx",
     "module": "nodenext",
     "moduleDetection": "force",
@@ -16,6 +16,6 @@
     "types": [
       "node"
     ],
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": false
   }
 }
