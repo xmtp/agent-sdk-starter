@@ -1,7 +1,7 @@
 // Import .env
 import 'dotenv-defaults/config.js';
 // Import Agent SDK
-import {Agent, AgentError} from '@xmtp/agent-sdk';
+import {Agent, AgentError, ReactionSchema} from '@xmtp/agent-sdk';
 import {getTestUrl} from '@xmtp/agent-sdk/debug';
 import {type AttachmentUploadCallback, downloadRemoteAttachment} from '@xmtp/agent-sdk/util';
 import {CommandRouter} from '@xmtp/agent-sdk/middleware';
@@ -42,6 +42,47 @@ router.command('/send-image', async ctx => {
   };
 
   await ctx.sendRemoteAttachment(file, uploadCallback);
+});
+
+router.command('/test', async ctx => {
+  // 1. Send text message
+  await ctx.conversation.sendText('This is a plain text message.');
+
+  // 2. Send markdown message
+  await ctx.conversation.sendMarkdown('**Bold text** and *italic text* with `code`.');
+
+  // 3. Send reply to the original message
+  await ctx.sendTextReply('This is a reply to your /test command.');
+
+  // 4. Send reactions with different schemas
+  await ctx.sendReaction('👍', ReactionSchema.Unicode);
+  await ctx.sendReaction(':heart:', ReactionSchema.Shortcode);
+  await ctx.sendReaction('custom-reaction-id', ReactionSchema.Custom);
+  await ctx.sendReaction('', ReactionSchema.Unknown);
+
+  // 5. Send attachment
+  const file = createImageFile();
+  const uploadCallback: AttachmentUploadCallback = async attachment => {
+    const pinata = new PinataSDK({
+      pinataJwt: `${process.env.PINATA_JWT}`,
+      pinataGateway: `${process.env.PINATA_GATEWAY}`,
+    });
+
+    const mimeType = 'application/octet-stream';
+    const encryptedBlob = new Blob([Buffer.from(attachment.payload)], {
+      type: mimeType,
+    });
+    const encryptedFile = new File([encryptedBlob], attachment.filename || 'untitled', {
+      type: mimeType,
+    });
+    const upload = await pinata.upload.public.file(encryptedFile);
+
+    return pinata.gateways.public.convert(`${upload.cid}`);
+  };
+  await ctx.sendRemoteAttachment(file, uploadCallback);
+
+  // Final confirmation
+  await ctx.conversation.sendText('✅ Sent all content types!');
 });
 
 agent.on('attachment', async ctx => {
