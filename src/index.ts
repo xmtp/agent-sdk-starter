@@ -107,7 +107,7 @@ agent.on('dm', async ctx => {
 });
 
 agent.on('group', async ctx => {
-  await ctx.conversation.sendText('**Hello group!**');
+  await ctx.conversation.sendText('Hello group!');
 });
 
 agent.on('unhandledError', (error: unknown) => {
