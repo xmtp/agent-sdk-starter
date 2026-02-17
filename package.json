@@ -4,11 +4,11 @@
     "url": "https://github.com/xmtp/agent-sdk-starter/issues"
   },
   "dependencies": {
-    "@types/node": "^25.1.0",
-    "@xmtp/agent-sdk": "2.0.1",
+    "@types/node": "^25.2.3",
+    "@xmtp/agent-sdk": "^2.2.0",
     "canvas": "^3.2.1",
     "dotenv-defaults": "^5.0.2",
-    "pinata": "^2.5.3",
+    "pinata": "^2.5.4",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
