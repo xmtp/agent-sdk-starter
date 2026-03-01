@@ -4,7 +4,7 @@
     "url": "https://github.com/xmtp/agent-sdk-starter/issues"
   },
   "dependencies": {
-    "@types/node": "^25.2.3",
+    "@types/node": "^25.3.3",
     "@xmtp/agent-sdk": "^2.2.0",
     "canvas": "^3.2.1",
     "dotenv-defaults": "^5.0.2",
