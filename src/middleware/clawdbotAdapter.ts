@@ -1,25 +1,19 @@
 /**
  * ClawdbotAdapter — routes XMTP messages into the Clawdbot session API.
  *
- * Architecture note:
- *   POST /hooks/agent is ALWAYS async (202) — it never returns the reply body.
- *   Instead, we:
- *     1. Fire the hook with a deterministic sessionKey
- *     2. Poll session history via /api/chat/history until a new reply appears
- *     3. Send the reply back via XMTP
+ * Uses the Gateway WebSocket control API (chat.send) for synchronous replies.
+ * POST /hooks/agent is always async (202) — this adapter uses WS instead.
  *
  * Env vars:
  *   CLAWDBOT_API_URL   — base URL of the Clawdbot Gateway (e.g. http://localhost:18789)
- *   CLAWDBOT_API_TOKEN — bearer token for the webhook endpoint (hooks.token in config)
  *   CLAWDBOT_GW_TOKEN  — Gateway control UI auth token (gateway.auth.token in config)
- *                        used for polling session history
  *   AGENT_NAME         — which OS-1 agent this instance represents (jared|jean|sam)
  */
 
 import type {AgentMiddleware} from '@xmtp/agent-sdk';
+import {WebSocket} from 'ws';
 
 const CLAWDBOT_API_URL = process.env.CLAWDBOT_API_URL ?? 'http://localhost:18789';
-const CLAWDBOT_API_TOKEN = process.env.CLAWDBOT_API_TOKEN ?? '';
 const CLAWDBOT_GW_TOKEN = process.env.CLAWDBOT_GW_TOKEN ?? '';
 const AGENT_NAME = process.env.AGENT_NAME ?? 'jared';
 
@@ -36,75 +30,87 @@ async function getOrCreateSession(conversationId: string): Promise<string> {
 }
 
 /**
- * Fire the /hooks/agent endpoint (async 202).
- * Returns the runId for correlation.
+ * Send a message to a Clawdbot session via WebSocket and wait for the reply.
+ * Uses the Gateway control API: chat.send + streaming chat events.
  */
-async function fireHook(sessionKey: string, message: string): Promise<string> {
-  const res = await fetch(`${CLAWDBOT_API_URL}/hooks/agent`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(CLAWDBOT_API_TOKEN ? {Authorization: `Bearer ${CLAWDBOT_API_TOKEN}`} : {}),
-    },
-    body: JSON.stringify({
-      message,
-      sessionKey,
-      name: `XMTP:${AGENT_NAME}`,
-      deliver: false,
-      // timeoutSeconds is accepted but /hooks/agent is always async (202)
-    }),
-  });
+async function sendViaWebSocket(sessionKey: string, message: string): Promise<string> {
+  const wsUrl = CLAWDBOT_API_URL.replace(/^http/, 'ws');
+  const runId = `xmtp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
-  if (!res.ok) {
-    throw new Error(`Clawdbot Gateway hook error: ${res.status} ${res.statusText}`);
-  }
+  return new Promise((resolve, reject) => {
+    const ws = new WebSocket(wsUrl, {
+      headers: CLAWDBOT_GW_TOKEN
+        ? {Authorization: `Bearer ${CLAWDBOT_GW_TOKEN}`}
+        : {},
+    });
 
-  const data = (await res.json()) as {ok: boolean; runId?: string};
-  if (!data.ok || !data.runId) {
-    throw new Error(`Hook rejected: ${JSON.stringify(data)}`);
-  }
-  return data.runId;
-}
+    const timeout = setTimeout(() => {
+      ws.close();
+      reject(new Error('WebSocket reply timeout'));
+    }, 60000);
 
-/**
- * Poll session history for a new assistant reply after the hook fires.
- * Uses the Gateway control API (requires CLAWDBOT_GW_TOKEN).
- */
-async function pollForReply(
-  sessionKey: string,
-  runId: string,
-  maxWaitMs = 55000,
-  intervalMs = 1500,
-): Promise<string> {
-  const deadline = Date.now() + maxWaitMs;
-  const gwToken = CLAWDBOT_GW_TOKEN;
+    let replyChunks: string[] = [];
+    let runStarted = false;
 
-  while (Date.now() < deadline) {
-    await new Promise(r => setTimeout(r, intervalMs));
-
-    try {
-      const res = await fetch(
-        `${CLAWDBOT_API_URL}/api/sessions/${encodeURIComponent(sessionKey)}/history?limit=5`,
-        {
-          headers: gwToken ? {Authorization: `Bearer ${gwToken}`} : {},
-        },
+    ws.on('open', () => {
+      ws.send(
+        JSON.stringify({
+          type: 'chat.send',
+          sessionKey,
+          message,
+          idempotencyKey: runId,
+        }),
       );
+    });
 
-      if (res.ok) {
-        const data = (await res.json()) as {messages?: Array<{role: string; content: string}>};
-        const messages = data.messages ?? [];
-        // Find the last assistant message
-        const lastAssistant = [...messages].reverse().find(m => m.role === 'assistant');
-        if (lastAssistant?.content) {
-          return lastAssistant.content;
+    ws.on('message', (raw: Buffer) => {
+      try {
+        const event = JSON.parse(raw.toString()) as {
+          type?: string;
+          event?: string;
+          status?: string;
+          text?: string;
+          delta?: string;
+          reply?: string;
+          error?: string;
+          runId?: string;
+        };
+
+        if (event.type === 'chat' || event.event === 'chat') {
+          if (event.status === 'started') {
+            runStarted = true;
+          } else if (event.delta) {
+            replyChunks.push(event.delta);
+          } else if (event.status === 'ok' || event.status === 'done') {
+            clearTimeout(timeout);
+            ws.close();
+            const reply = event.reply ?? replyChunks.join('');
+            resolve(reply || '(no response)');
+          } else if (event.status === 'error') {
+            clearTimeout(timeout);
+            ws.close();
+            reject(new Error(event.error ?? 'Agent run failed'));
+          }
         }
+      } catch {
+        // ignore parse errors on non-JSON frames
       }
-    } catch {
-      // transient error — keep polling
-    }
-  }
+    });
 
-  throw new Error(`Timed out waiting for reply (runId: ${runId})`);
+    ws.on('error', err => {
+      clearTimeout(timeout);
+      reject(err);
+    });
+
+    ws.on('close', () => {
+      clearTimeout(timeout);
+      if (runStarted && replyChunks.length > 0) {
+        resolve(replyChunks.join(''));
+      } else if (!runStarted) {
+        reject(new Error('WebSocket closed before run started'));
+      }
+    });
+  });
 }
 
 export const clawdbotAdapter: AgentMiddleware = async (ctx, next) => {
@@ -119,10 +125,8 @@ export const clawdbotAdapter: AgentMiddleware = async (ctx, next) => {
 
   try {
     const sessionKey = await getOrCreateSession(conversationId);
-    const runId = await fireHook(sessionKey, content);
-    console.log(`[ClawdbotAdapter] Hook fired runId=${runId} session=${sessionKey}`);
-
-    const reply = await pollForReply(sessionKey, runId);
+    console.log(`[ClawdbotAdapter] Routing to session ${sessionKey}`);
+    const reply = await sendViaWebSocket(sessionKey, content);
     await ctx.conversation.sendText(reply);
   } catch (err) {
     console.error('[ClawdbotAdapter] Error:', err);

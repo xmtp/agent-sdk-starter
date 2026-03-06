@@ -5,12 +5,14 @@
   },
   "dependencies": {
     "@types/node": "^25.3.3",
+    "@types/ws": "^8.18.1",
     "@xmtp/agent-sdk": "^2.2.0",
     "canvas": "^3.2.1",
     "dotenv-defaults": "^5.0.2",
     "pinata": "^2.5.5",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "ws": "^8.19.0"
   },
   "description": "",
   "homepage": "https://github.com/xmtp/agent-sdk-starter#readme",
