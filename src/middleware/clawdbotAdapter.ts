@@ -31,21 +31,29 @@ async function getOrCreateSession(conversationId: string): Promise<string> {
 }
 
 async function forwardToClawdbot(sessionKey: string, message: string): Promise<string> {
-  const res = await fetch(`${CLAWDBOT_API_URL}/api/sessions/${sessionKey}/message`, {
+  // Uses the Clawdbot Gateway webhook endpoint: POST /hooks/agent
+  // xmtp channel type is not yet registered — falls back to generic agent routing.
+  const res = await fetch(`${CLAWDBOT_API_URL}/hooks/agent`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       ...(CLAWDBOT_API_TOKEN ? {Authorization: `Bearer ${CLAWDBOT_API_TOKEN}`} : {}),
     },
-    body: JSON.stringify({message, timeoutSeconds: 30}),
+    body: JSON.stringify({
+      message,
+      sessionKey,
+      channel: 'xmtp',
+      // Metadata for future xmtp channel plugin
+      meta: {agent: AGENT_NAME},
+    }),
   });
 
   if (!res.ok) {
-    throw new Error(`Clawdbot API error: ${res.status} ${res.statusText}`);
+    throw new Error(`Clawdbot Gateway error: ${res.status} ${res.statusText}`);
   }
 
-  const data = (await res.json()) as {reply?: string; text?: string};
-  return data.reply ?? data.text ?? '(no response)';
+  const data = (await res.json()) as {reply?: string; text?: string; message?: string};
+  return data.reply ?? data.text ?? data.message ?? '(no response)';
 }
 
 export const clawdbotAdapter: AgentMiddleware = async (ctx, next) => {
