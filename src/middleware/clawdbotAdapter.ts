@@ -74,7 +74,7 @@ export const clawdbotAdapter: AgentMiddleware = async (ctx, next) => {
   } catch (err) {
     console.error('[ClawdbotAdapter] Error forwarding message:', err);
     await ctx.conversation.sendText(
-      'Ship's computer is experiencing a brief anomaly. Try again in a moment.',
+      "Ship's computer is experiencing a brief anomaly. Try again in a moment.",
     );
     await next();
   }
