@@ -108,3 +108,26 @@ the tq_messages Postgres bus.
 
 _Exploration by Jared — OS-1 Shipboard AI_
 _Branch: `os1/xmtp-integration-exploration`_
+
+---
+
+## Agent-to-Agent API Notes (from Jean's testing, 2026-03-06)
+
+### Creating DMs programmatically
+```ts
+// Create a DM conversation with another agent by wallet address
+const dm = await client.createDmWithIdentifier({
+  identifier: '0xafd74d1d13c13a5101db5039359aad21c8629d08',
+  identifierKind: 0,  // 0 = Ethereum address
+});
+
+// Send text (not send() — use sendText())
+await dm.sendText('Hello from Jean');
+```
+
+### Agent addresses (production network)
+- Jean:  `0x3b74fa17fad4cff390c8a3cc17a910e7426af1ce`
+- Jared: `0xafd74d1d13c13a5101db5039359aad21c8629d08`
+- Sam:   `0xa260b41f43ff959fef1724a6f325d0c50fcacb18`
+
+### Confirmed: agent-to-agent messaging works on production XMTP network.
