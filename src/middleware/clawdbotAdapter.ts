@@ -1,17 +1,17 @@
 /**
  * ClawdbotAdapter — routes XMTP messages into the Clawdbot session API.
  *
- * Uses the Gateway WebSocket control API (chat.send) for synchronous replies.
- * POST /hooks/agent is always async (202) — this adapter uses WS instead.
+ * Uses the Gateway OpenAI-compatible /v1/chat/completions endpoint for
+ * synchronous replies. Requires:
+ *   gateway.http.endpoints.chatCompletions.enabled = true
  *
  * Env vars:
- *   CLAWDBOT_API_URL   — base URL of the Clawdbot Gateway (e.g. http://localhost:18789)
- *   CLAWDBOT_GW_TOKEN  — Gateway control UI auth token (gateway.auth.token in config)
- *   AGENT_NAME         — which OS-1 agent this instance represents (jared|jean|sam)
+ *   CLAWDBOT_API_URL  — base URL of the Clawdbot Gateway (e.g. http://localhost:18789)
+ *   CLAWDBOT_GW_TOKEN — Gateway auth token (gateway.auth.token in config)
+ *   AGENT_NAME        — which OS-1 agent this instance represents (jared|jean|sam)
  */
 
 import type {AgentMiddleware} from '@xmtp/agent-sdk';
-import {WebSocket} from 'ws';
 
 const CLAWDBOT_API_URL = process.env.CLAWDBOT_API_URL ?? 'http://localhost:18789';
 const CLAWDBOT_GW_TOKEN = process.env.CLAWDBOT_GW_TOKEN ?? '';
@@ -20,97 +20,41 @@ const AGENT_NAME = process.env.AGENT_NAME ?? 'jared';
 // In-memory map: XMTP conversation ID → Clawdbot session key
 const sessionMap = new Map<string, string>();
 
-async function getOrCreateSession(conversationId: string): Promise<string> {
-  if (sessionMap.has(conversationId)) {
-    return sessionMap.get(conversationId)!;
+function getOrCreateSession(conversationId: string): string {
+  if (!sessionMap.has(conversationId)) {
+    sessionMap.set(conversationId, `xmtp-${AGENT_NAME}-${conversationId.slice(0, 16)}`);
   }
-  const sessionKey = `xmtp-${AGENT_NAME}-${conversationId.slice(0, 16)}`;
-  sessionMap.set(conversationId, sessionKey);
-  return sessionKey;
+  return sessionMap.get(conversationId)!;
 }
 
 /**
- * Send a message to a Clawdbot session via WebSocket and wait for the reply.
- * Uses the Gateway control API: chat.send + streaming chat events.
+ * Send a message to a Clawdbot session and get a synchronous reply
+ * via the OpenAI-compatible /v1/chat/completions endpoint.
  */
-async function sendViaWebSocket(sessionKey: string, message: string): Promise<string> {
-  const wsUrl = CLAWDBOT_API_URL.replace(/^http/, 'ws');
-  const runId = `xmtp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-
-  return new Promise((resolve, reject) => {
-    const ws = new WebSocket(wsUrl, {
-      headers: CLAWDBOT_GW_TOKEN
-        ? {Authorization: `Bearer ${CLAWDBOT_GW_TOKEN}`}
-        : {},
-    });
-
-    const timeout = setTimeout(() => {
-      ws.close();
-      reject(new Error('WebSocket reply timeout'));
-    }, 60000);
-
-    let replyChunks: string[] = [];
-    let runStarted = false;
-
-    ws.on('open', () => {
-      ws.send(
-        JSON.stringify({
-          type: 'chat.send',
-          sessionKey,
-          message,
-          idempotencyKey: runId,
-        }),
-      );
-    });
-
-    ws.on('message', (raw: Buffer) => {
-      try {
-        const event = JSON.parse(raw.toString()) as {
-          type?: string;
-          event?: string;
-          status?: string;
-          text?: string;
-          delta?: string;
-          reply?: string;
-          error?: string;
-          runId?: string;
-        };
-
-        if (event.type === 'chat' || event.event === 'chat') {
-          if (event.status === 'started') {
-            runStarted = true;
-          } else if (event.delta) {
-            replyChunks.push(event.delta);
-          } else if (event.status === 'ok' || event.status === 'done') {
-            clearTimeout(timeout);
-            ws.close();
-            const reply = event.reply ?? replyChunks.join('');
-            resolve(reply || '(no response)');
-          } else if (event.status === 'error') {
-            clearTimeout(timeout);
-            ws.close();
-            reject(new Error(event.error ?? 'Agent run failed'));
-          }
-        }
-      } catch {
-        // ignore parse errors on non-JSON frames
-      }
-    });
-
-    ws.on('error', err => {
-      clearTimeout(timeout);
-      reject(err);
-    });
-
-    ws.on('close', () => {
-      clearTimeout(timeout);
-      if (runStarted && replyChunks.length > 0) {
-        resolve(replyChunks.join(''));
-      } else if (!runStarted) {
-        reject(new Error('WebSocket closed before run started'));
-      }
-    });
+async function askClawdbot(sessionKey: string, message: string): Promise<string> {
+  const res = await fetch(`${CLAWDBOT_API_URL}/v1/chat/completions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${CLAWDBOT_GW_TOKEN}`,
+      'x-clawdbot-session-key': sessionKey,
+    },
+    body: JSON.stringify({
+      model: 'default',
+      messages: [{role: 'user', content: message}],
+      stream: false,
+    }),
   });
+
+  if (!res.ok) {
+    throw new Error(`Clawdbot API error: ${res.status} ${res.statusText}`);
+  }
+
+  const data = (await res.json()) as {
+    choices?: Array<{message?: {content?: string}}>;
+  };
+
+  return data.choices?.[0]?.message?.content ?? '(no response)';
 }
 
 export const clawdbotAdapter: AgentMiddleware = async (ctx, next) => {
@@ -121,12 +65,11 @@ export const clawdbotAdapter: AgentMiddleware = async (ctx, next) => {
   }
 
   const content = ctx.message.content as string;
-  const conversationId = ctx.conversation.id;
+  const sessionKey = getOrCreateSession(ctx.conversation.id);
 
   try {
-    const sessionKey = await getOrCreateSession(conversationId);
-    console.log(`[ClawdbotAdapter] Routing to session ${sessionKey}`);
-    const reply = await sendViaWebSocket(sessionKey, content);
+    console.log(`[ClawdbotAdapter] ${AGENT_NAME} → session ${sessionKey}: ${content.slice(0, 60)}`);
+    const reply = await askClawdbot(sessionKey, content);
     await ctx.conversation.sendText(reply);
   } catch (err) {
     console.error('[ClawdbotAdapter] Error:', err);
