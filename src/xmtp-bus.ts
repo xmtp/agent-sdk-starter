@@ -36,7 +36,7 @@ export async function sendToAgent(
     );
   }
 
-  const dm = await client.createDmWithIdentifier({
+  const dm = await client.conversations.createDmWithIdentifier({
     identifier: address,
     identifierKind: 0, // 0 = Ethereum address
   });
