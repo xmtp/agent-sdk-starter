@@ -43,6 +43,7 @@ async function forwardToClawdbot(sessionKey: string, message: string): Promise<s
       message,
       sessionKey,
       channel: 'xmtp',
+      timeoutSeconds: 60,
       // Metadata for future xmtp channel plugin
       meta: {agent: AGENT_NAME},
     }),
