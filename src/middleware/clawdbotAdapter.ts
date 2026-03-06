@@ -42,10 +42,13 @@ async function forwardToClawdbot(sessionKey: string, message: string): Promise<s
     body: JSON.stringify({
       message,
       sessionKey,
-      channel: 'xmtp',
+      // 'last' routes to most recent channel; swap for 'whatsapp' etc. once
+      // an xmtp channel plugin exists
+      channel: process.env.CLAWDBOT_REPLY_CHANNEL ?? 'last',
       timeoutSeconds: 60,
-      // Metadata for future xmtp channel plugin
-      meta: {agent: AGENT_NAME},
+      // Don't deliver to messaging channel — we handle the reply via XMTP
+      deliver: false,
+      name: `XMTP:${AGENT_NAME}`,
     }),
   });
 
