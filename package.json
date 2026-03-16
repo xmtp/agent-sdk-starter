@@ -10,7 +10,8 @@
     "dotenv-defaults": "^6.0.0",
     "pinata": "^2.5.5",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "@xmtp/gateway": "^0.1.0-poc.d77d22fb"
   },
   "description": "",
   "homepage": "https://github.com/xmtp/agent-sdk-starter#readme",
@@ -25,6 +26,7 @@
   "scripts": {
     "export:pdf": "marp doc/presentation.md --pdf --allow-local-files -o doc/presentation.pdf",
     "start": "tsx watch src/index.ts",
+    "start:gateway": "tsx src/start-with-gateway.ts",
     "test": "tsc --noEmit"
   },
   "type": "module",
