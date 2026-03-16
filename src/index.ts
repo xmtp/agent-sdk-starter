@@ -1,5 +1,5 @@
 // Import .env
-import 'dotenv-defaults/config.js';
+import 'dotenv-defaults/config';
 // Import Agent SDK
 import {Agent, AgentError, ReactionSchema} from '@xmtp/agent-sdk';
 import {getTestUrl} from '@xmtp/agent-sdk/debug';
