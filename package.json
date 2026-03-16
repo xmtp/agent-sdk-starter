@@ -11,7 +11,7 @@
     "pinata": "^2.5.5",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "@xmtp/gateway": "^0.1.0-poc.d77d22fb"
+    "@xmtp/gateway": "^1.2.0-80-g43875c8b"
   },
   "description": "",
   "homepage": "https://github.com/xmtp/agent-sdk-starter#readme",
