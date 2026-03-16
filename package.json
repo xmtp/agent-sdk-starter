@@ -5,12 +5,14 @@
   },
   "dependencies": {
     "@types/node": "^25.3.3",
+    "@types/ws": "^8.18.1",
     "@xmtp/agent-sdk": "^2.2.0",
     "canvas": "^3.2.1",
     "dotenv-defaults": "^6.0.0",
     "pinata": "^2.5.5",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "ws": "^8.19.0"
   },
   "description": "",
   "homepage": "https://github.com/xmtp/agent-sdk-starter#readme",
@@ -25,7 +27,8 @@
   "scripts": {
     "export:pdf": "marp doc/presentation.md --pdf --allow-local-files -o doc/presentation.pdf",
     "start": "tsx watch src/index.ts",
-    "test": "tsc --noEmit"
+    "test": "tsc --noEmit",
+    "start:os1": "tsx watch src/index-os1.ts"
   },
   "type": "module",
   "version": "1.0.0"
