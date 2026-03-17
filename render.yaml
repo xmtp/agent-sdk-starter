@@ -7,7 +7,7 @@ services:
     region: frankfurt
     plan: starter
     branch: main
-    buildCommand: npm install
+    buildCommand: npm install && npm ls @xmtp/agent-sdk @xmtp/node-sdk @xmtp/node-bindings
     startCommand: npm start
     envVars:
       - key: XMTP_WALLET_KEY
