@@ -4,8 +4,8 @@
     "url": "https://github.com/xmtp/agent-sdk-starter/issues"
   },
   "dependencies": {
-    "@types/node": "^25.3.3",
-    "@xmtp/agent-sdk": "^2.2.0",
+    "@types/node": "^25.5.0",
+    "@xmtp/agent-sdk": "^2.3.0",
     "canvas": "^3.2.1",
     "dotenv-defaults": "^6.0.0",
     "pinata": "^2.5.5",
@@ -28,6 +28,9 @@
     "start": "tsx watch src/index.ts",
     "start:gateway": "tsx src/start-with-gateway.ts",
     "test": "tsc --noEmit"
+  },
+  "overrides": {
+    "@xmtp/node-bindings": "1.10.0-dev.cd6ef40"
   },
   "type": "module",
   "version": "1.0.0"

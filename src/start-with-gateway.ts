@@ -1,12 +1,13 @@
 // Starts a local gateway then runs the agent through it.
 // Usage: npm run start:gateway
 
+import assert from "node:assert";
 import "dotenv-defaults/config";
 import { startGateway } from "@xmtp/gateway";
 
 function env(name: string): string {
   const val = process.env[name];
-  if (!val) throw new Error(`Missing env var: ${name}`);
+  assert(val, `Missing env var: ${name}`);
   return val;
 }
 
