@@ -30,7 +30,7 @@
     "test": "tsc --noEmit"
   },
   "overrides": {
-    "@xmtp/node-bindings": "1.10.0-dev.cd6ef40"
+    "@xmtp/node-bindings": "1.10.0-dev.a7179df"
   },
   "type": "module",
   "version": "1.0.0"
