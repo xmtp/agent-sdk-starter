@@ -10,7 +10,7 @@
     "dotenv-defaults": "^6.0.0",
     "pinata": "^2.5.5",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.2",
     "@xmtp/gateway": "^1.2.0-80-g43875c8b"
   },
   "description": "",
