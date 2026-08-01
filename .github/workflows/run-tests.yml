@@ -18,7 +18,7 @@ jobs:
       - name: "Check out repository code in $GITHUB_WORKSPACE"
         uses: actions/checkout@v7
       - name: "Set up Node.js version specified in file"
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version-file: ".nvmrc"
       - name: "Run deterministic dependency installation"
